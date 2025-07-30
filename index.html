@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Node.js Event Loop Simulation</title>
+  <style>
+    body { font-family: sans-serif; background: #111; color: #fff; padding: 20px; }
+    .queue { border: 2px dashed #555; padding: 10px; margin-top: 20px; }
+    .highlight { color: #0f0; font-weight: bold; }
+    .log { margin-top: 10px; font-family: monospace; }
+    .log span { display: block; }
+  </style>
+</head>
+<body>
+  <h2>🔁 Node.js Event Loop Simulation</h2>
+  <div class="queue" id="callstack">📞 <b>Call Stack</b></div>
+  <div class="queue" id="nexttick">⚡ <b>process.nextTick Queue</b></div>
+  <div class="queue" id="microtask">🔁 <b>Microtask Queue (Promises)</b></div>
+  <div class="queue" id="macrotask">🕒 <b>Macrotask Queue (setTimeout)</b></div>
+  <div class="log" id="output"></div>
+
+  <script>
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    const output = (text) => {
+      document.getElementById("output").innerHTML += `<span>📤 ${text}</span>`;
+    };
+
+    async function simulateEventLoop() {
+      // Step 1: Sync execution
+      document.getElementById("callstack").innerHTML += "<br>console.log('i am code')";
+      await sleep(1000);
+      output("i am code");
+
+      // Schedule tasks
+      document.getElementById("macrotask").innerHTML += "<br>setTimeout → 'Timeout'";
+      document.getElementById("microtask").innerHTML += "<br>Promise.then → 'Promise'";
+      document.getElementById("nexttick").innerHTML += "<br>process.nextTick → 'Next Tick'";
+
+      await sleep(1000);
+      // Step 2: nextTick
+      document.getElementById("nexttick").classList.add("highlight");
+      await sleep(1000);
+      output("Next Tick");
+      document.getElementById("nexttick").classList.remove("highlight");
+
+      // Step 3: microtask
+      document.getElementById("microtask").classList.add("highlight");
+      await sleep(1000);
+      output("Promise");
+      document.getElementById("microtask").classList.remove("highlight");
+
+      // Step 4: macrotask
+      document.getElementById("macrotask").classList.add("highlight");
+      await sleep(1000);
+      output("Timeout");
+      document.getElementById("macrotask").classList.remove("highlight");
+    }
+
+    simulateEventLoop();
+  </script>
+</body>
+</html>
